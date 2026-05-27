@@ -48,13 +48,18 @@ type Response struct {
 	Duration    int64
 }
 
-func NewS3Handler(downloadVideoBucket string, uploadTranscodedVideoBucket string) (*S3Handler, error) {
+func NewS3Handler(downloadVideoBucket string, uploadTranscodedVideoBucket string, s3Endpoint string, usePathStyle bool) (*S3Handler, error) {
 	cfg, err := config.LoadDefaultConfig(context.Background())
 	if err != nil {
 		return nil, fmt.Errorf("unable to load SDK config: %w", err)
 	}
 
-	client := s3.NewFromConfig(cfg)
+	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
+		if s3Endpoint != "" {
+			o.BaseEndpoint = aws.String(s3Endpoint)
+		}
+		o.UsePathStyle = usePathStyle
+	})
 	return &S3Handler{
 		client:                      client,
 		downloadVideoBucket:         downloadVideoBucket,
