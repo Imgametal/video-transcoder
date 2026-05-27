@@ -31,6 +31,8 @@ AWS_DOWNLOAD_BUCKET_NAME=your_input_bucket
 AWS_UPLOAD_BUCKET_NAME=your_output_bucket
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
+S3_ENDPOINT=                          # Optional: custom S3 endpoint (e.g., http://localhost:9000 for MinIO)
+S3_USE_PATH_STYLE=false               # Optional: use path-style addressing (true for MinIO, false for AWS)
 ```
 
 ## Installation

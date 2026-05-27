@@ -58,7 +58,14 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: Error loading .env file: %v", err)
 	}
-	s3Handler, err := transcoder.NewS3Handler(os.Getenv("AWS_DOWNLOAD_BUCKET_NAME"), os.Getenv("AWS_UPLOAD_BUCKET_NAME"))
+	s3Endpoint := os.Getenv("S3_ENDPOINT")
+	usePathStyle := os.Getenv("S3_USE_PATH_STYLE") == "true"
+	s3Handler, err := transcoder.NewS3Handler(
+		os.Getenv("AWS_DOWNLOAD_BUCKET_NAME"),
+		os.Getenv("AWS_UPLOAD_BUCKET_NAME"),
+		s3Endpoint,
+		usePathStyle,
+	)
 	if err != nil {
 		log.Fatalf("failed to create S3 handler: %v", err)
 	}
