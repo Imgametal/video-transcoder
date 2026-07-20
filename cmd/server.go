@@ -20,6 +20,7 @@ type server struct {
 
 func (s *server) TranscodeVideo(stream pb.VideoTranscoderService_TranscodeVideoServer) error {
 	var videoKey string
+	var requestedResolutions []string
 
 	for {
 		req, err := stream.Recv()
@@ -27,10 +28,11 @@ func (s *server) TranscodeVideo(stream pb.VideoTranscoderService_TranscodeVideoS
 			break
 		}
 		videoKey = req.GetFilename()
-		log.Printf("Received video key %s", videoKey)
+		requestedResolutions = req.GetResolutions()
+		log.Printf("Received video key %s, resolutions: %v", videoKey, requestedResolutions)
 	}
 
-	response, err := transcoder.TranscodeVideo(videoKey, s.s3Handler)
+	response, err := transcoder.TranscodeVideo(videoKey, s.s3Handler, requestedResolutions)
 	if err != nil {
 		return stream.SendAndClose(&pb.TranscodeVideoResponse{
 			Message: err.Error(),
@@ -53,11 +55,9 @@ func healthCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// Load .env file
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: Error loading .env file: %v", err)
 	}
-	// Initialize S3 handler
 	s3Handler, err := transcoder.NewS3Handler(os.Getenv("AWS_DOWNLOAD_BUCKET_NAME"), os.Getenv("AWS_UPLOAD_BUCKET_NAME"))
 	if err != nil {
 		log.Fatalf("failed to create S3 handler: %v", err)
